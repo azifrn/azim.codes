@@ -19,6 +19,10 @@ body {
   cursor: pointer;
 }
 
+#fullpage span{
+  font-family: Handlee;
+}
+
 #kekata {
   text-align:center;
   font-size:2.5rem;

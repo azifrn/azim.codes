@@ -10,6 +10,7 @@
 
     <div id="fullpage">
         <h1 id="kekata">Spread love.</h1>
+        <span id="tutorial">Click anywhere to get new wisdom.</span>
     </div>
     
 
@@ -27,12 +28,19 @@
       const fullpageDiv = document.getElementById('fullpage');
 
       fullpageDiv.onclick = function(){
-        changeQuote();
+        changeQuote(true);
       }
+      
 
-      function changeQuote(){
+      function changeQuote(hide){
           const kekata = document.getElementById('kekata');
           kekata.innerHTML = senarai_kekata[getRandomIndex(senarai_kekata)];
+          const changeQuote = document.getElementById('tutorial');
+
+          if(hide){
+            changeQuote.style.display = "none";
+          }
+       
       }
 
 
