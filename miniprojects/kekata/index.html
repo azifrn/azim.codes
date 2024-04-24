@@ -1,0 +1,49 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projek Kekata</title>
+
+    <link rel="stylesheet" href="./static/css/kekata.css">
+  </head>
+  <body>
+
+    <div id="fullpage">
+        <h1 id="kekata">Spread love.</h1>
+    </div>
+    
+
+    <script>
+      var senarai_kekata = [
+      "Be the change you wish to see in the world.",
+      "Spread love.",
+      "Dua tiga kucing berlari.",
+      "Be yourself; everyone else is already taken.",
+      "The only impossible journey is the one you never begin.",
+      "Chicks with dicks are twice the fun.",
+      ]
+
+      changeQuote();
+      const fullpageDiv = document.getElementById('fullpage');
+
+      fullpageDiv.onclick = function(){
+        changeQuote();
+      }
+
+      function changeQuote(){
+          const kekata = document.getElementById('kekata');
+          kekata.innerHTML = senarai_kekata[getRandomIndex(senarai_kekata)];
+      }
+
+
+      function getRandomIndex(array) {
+          // Generate a random number between 0 and the length of the array minus 1
+          const randomIndex = Math.floor(Math.random() * array.length);
+          // Return the random index
+          return randomIndex;
+        }
+
+
+    </script>
+  </body>
+</html>
