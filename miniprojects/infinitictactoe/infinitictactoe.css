@@ -1,0 +1,62 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Patrick Hand";
+}
+
+#overctn {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  background: rgb(89, 167, 208);
+  background: linear-gradient(
+    145deg,
+    rgba(89, 167, 208, 1) 13%,
+    rgba(255, 158, 246, 1) 100%
+  );
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#tic {
+  display: grid;
+  grid-template-columns: 33.33% 33.33% 33.33%;
+  grid-template-rows: 33.33% 33.33% 33.33%;
+  gap: 3px;
+  height: 300px;
+  width: 300px;
+}
+
+.tac {
+  background-color: rgba(255, 255, 255, 0.75);
+  border: 1px solid black;
+  border-radius: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  font-size: 5rem;
+}
+
+#azim {
+  position: fixed;
+  bottom: 2px;
+  left: 7px;
+}
+
+#ver {
+    position: fixed;
+    bottom: 2px;
+    right: 7px;
+  }
+
+#currTurn {
+  position: fixed;
+  top: 5px;
+  font-size: 2rem;
+}
