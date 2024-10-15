@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Drawing App with Smooth Edges</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            height: 100vh;
+            justify-content: center;
+        }
+        canvas {
+            border: 1px solid black;
+            cursor: crosshair;
+            margin: 10px;
+        }
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            border: 1px solid #ccc;
+        }
+        button {
+            margin: 5px;
+        }
+        .color-button {
+            width: 30px;
+            height: 30px;
+            border: none;
+            cursor: pointer;
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="drawingCanvas" width="800" height="600"></canvas>
+<div>
+    <button id="saveBtn">Save as Image</button>
+    <button id="undoBtn">Undo</button>
+    <button id="resetBtn">Reset</button>
+    <button id="replayBtn">Replay</button>
+</div>
+<div id="colorPalette"></div>
+<img id="resultImage" alt="Your drawing will appear here"/>
+
+<script>
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas.getContext('2d');
+    const saveBtn = document.getElementById('saveBtn');
+    const undoBtn = document.getElementById('undoBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const replayBtn = document.getElementById('replayBtn');
+    const resultImage = document.getElementById('resultImage');
+    const colorPalette = document.getElementById('colorPalette');
+
+    let drawing = false;
+    let drawingHistory = [];
+    let strokeData = [];
+    let currentColor = 'black'; // Default color
+    let lastX, lastY; // Previous coordinates for smooth drawing
+
+    function saveState() {
+        drawingHistory.push(canvas.toDataURL());
+    }
+
+    function startDrawing(x, y) {
+        drawing = true;
+        lastX = x;
+        lastY = y;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        strokeData.push({ type: 'start', x, y, color: currentColor });
+    }
+
+    function draw(x, y) {
+        if (drawing) {
+            // Create a smooth curve using quadraticCurveTo
+            ctx.quadraticCurveTo(lastX, lastY, x, y);
+            ctx.stroke();
+            
+            // Store the draw event
+            strokeData.push({ type: 'draw', x, y, lastX, lastY, color: currentColor });
+            
+            // Update last coordinates
+            lastX = x;
+            lastY = y;
+        }
+    }
+
+    function stopDrawing() {
+        drawing = false;
+        ctx.closePath();
+        saveState(); // Save the state after drawing
+        strokeData.push({ type: 'stop' }); // Mark the end of the stroke
+    }
+
+    // Mouse events
+    canvas.addEventListener('mousedown', (e) => startDrawing(e.offsetX, e.offsetY));
+    canvas.addEventListener('mousemove', (e) => draw(e.offsetX, e.offsetY));
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+
+    // Touch events
+    canvas.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        startDrawing(touch.clientX - canvas.getBoundingClientRect().left, touch.clientY - canvas.getBoundingClientRect().top);
+        e.preventDefault(); // Prevent scrolling
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+        const touch = e.touches[0];
+        draw(touch.clientX - canvas.getBoundingClientRect().left, touch.clientY - canvas.getBoundingClientRect().top);
+        e.preventDefault(); // Prevent scrolling
+    });
+
+    canvas.addEventListener('touchend', stopDrawing);
+
+    // Set stroke style and line width
+    ctx.strokeStyle = currentColor; 
+    ctx.lineWidth = 5; 
+    ctx.lineCap = 'round'; 
+
+    // Save canvas to data URL
+    saveBtn.addEventListener('click', () => {
+        const dataURL = canvas.toDataURL('image/png');
+        resultImage.src = dataURL; 
+    });
+
+    // Undo functionality
+    undoBtn.addEventListener('click', () => {
+        if (drawingHistory.length > 0) {
+            drawingHistory.pop(); // Remove the last state
+            const lastState = drawingHistory[drawingHistory.length - 1];
+            if (lastState) {
+                const img = new Image();
+                img.src = lastState;
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height); 
+                    ctx.drawImage(img, 0, 0);
+                };
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); 
+            }
+        }
+    });
+
+    // Reset functionality
+    resetBtn.addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); 
+        drawingHistory = []; 
+        strokeData = []; // Clear stroke data
+    });
+
+    // Replay functionality
+    replayBtn.addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before replaying
+        let index = 0;
+
+        const replay = () => {
+            if (index < strokeData.length) {
+                const stroke = strokeData[index];
+                if (stroke.type === 'start') {
+                    ctx.beginPath();
+                    ctx.moveTo(stroke.x, stroke.y);
+                    ctx.strokeStyle = stroke.color;
+                } else if (stroke.type === 'draw') {
+                    ctx.quadraticCurveTo(stroke.lastX, stroke.lastY, stroke.x, stroke.y);
+                    ctx.stroke();
+                } else if (stroke.type === 'stop') {
+                    ctx.closePath();
+                }
+                index++;
+                requestAnimationFrame(replay); // Replay at the next frame
+            }
+        };
+        replay();
+    });
+
+    // Color palette
+    const colors = ['black', 'red', 'green', 'blue', 'yellow', 'purple', 'orange', 'pink'];
+
+    colors.forEach(color => {
+        const colorButton = document.createElement('button');
+        colorButton.style.backgroundColor = color;
+        colorButton.className = 'color-button';
+        colorButton.onclick = () => {
+            currentColor = color;
+            ctx.strokeStyle = currentColor; // Update the stroke color
+        };
+        colorPalette.appendChild(colorButton);
+    });
+
+</script>
+
+</body>
+</html>
